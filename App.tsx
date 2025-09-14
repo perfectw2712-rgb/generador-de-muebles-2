@@ -1,7 +1,8 @@
+
 import React, { useState, useCallback } from 'react';
+import { GoogleGenAI } from "@google/genai";
 import { Logo } from './components/Logo';
 import { Spinner } from './components/Spinner';
-import { generateFurnitureImage } from './services/geminiService';
 import { FurnitureType } from './types';
 
 const App: React.FC = () => {
@@ -22,8 +23,27 @@ const App: React.FC = () => {
         El diseño debe enfatizar la soldadura de alta calidad, la robustez de las estructuras metálicas y la belleza natural de la madera. El ambiente debe ser un loft moderno o un taller.`;
 
         try {
-            const imageData = await generateFurnitureImage(prompt);
-            setGeneratedImage(`data:image/jpeg;base64,${imageData}`);
+            if (!process.env.API_KEY) {
+              throw new Error("La variable de entorno API_KEY no está configurada. Asegúrate de configurarla en tu entorno.");
+            }
+            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+            const response = await ai.models.generateImages({
+                model: 'imagen-4.0-generate-001',
+                prompt: prompt,
+                config: {
+                    numberOfImages: 1,
+                    outputMimeType: 'image/jpeg',
+                    aspectRatio: '1:1',
+                },
+            });
+
+            if (response.generatedImages && response.generatedImages.length > 0) {
+                const imageData = response.generatedImages[0].image.imageBytes;
+                setGeneratedImage(`data:image/jpeg;base64,${imageData}`);
+            } else {
+                throw new Error("La API no devolvió ninguna imagen.");
+            }
         } catch (err) {
             console.error(err);
             if (err instanceof Error) {

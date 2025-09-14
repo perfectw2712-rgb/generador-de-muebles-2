@@ -1,3 +1,4 @@
+
 {
   "compilerOptions": {
     "target": "es2020",
@@ -8,8 +9,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "lib": ["dom", "es2020"],
-    "jsx": "react-jsx",
-    "types": ["@netlify/functions"]
+    "jsx": "react-jsx"
   },
   "include": [
     "**/*.ts",
